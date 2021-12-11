@@ -2,4 +2,8 @@ const router = require('express').Router();
 const projetController = require('../controllers/projet.controller');
 
 
-app.get('/all' , projetController.getAllProjects);
+router.get('/all' , projetController.getAllProjects);
+
+router.post('/ajouter' , projetController.addProject);
+
+module.exports = router;
