@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const projetRoute = require('./routes/projet.routes');
+const employeRoute = require('./routes/employe.routes');
 
 require('dotenv').config();
 
@@ -14,6 +15,8 @@ const port = process.env.PORT;
 
 
 app.use('/api/projets' , projetRoute );
+
+app.use('/api/employes' , employeRoute);
 
 app.all('*', function(req, res) {
     throw new Error("Bad request");
