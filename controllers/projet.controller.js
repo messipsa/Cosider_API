@@ -31,7 +31,7 @@ module.exports.getProjectById = async(req,res)=>{
           return res.json(projet);
     }
     catch(err){
-        return res.status(500).json({message : 'Something went wrong',error : err});
+        return res.status(500).json({message : 'Projet inexistant ',error : err});
     }
 }
 
@@ -59,9 +59,9 @@ module.exports.deleteProject = async (req,res)=>{
     try{
            await Projet.findByIdAndDelete(id).orFail();
 
-           return res.json('user deleted successfully');
+           return res.json('Projet supprimé avec succes');
     }
     catch(err){
-        return res.status(500).json({message : 'Something went wrong',error : err});
+        return res.status(500).json({message : 'Projet non existant',error : err});
     }
 }

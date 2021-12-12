@@ -3,6 +3,7 @@ const {model , Schema} = require('mongoose');
 const projectSchema = new Schema({
     entite : {
         type : String,
+        unique : true,
         required : [true , 'le champ entite ne doit pas entre vide']
     },
     lieu:{
