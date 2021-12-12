@@ -8,7 +8,7 @@ const employeSchema = new Schema({
   },
   matricule : {
       type : Number,
-      unique : true,
+      unique : false,
       required : [true , 'le champs matricule ne doit pas etre vide']
   },
   lieu_naissance : {

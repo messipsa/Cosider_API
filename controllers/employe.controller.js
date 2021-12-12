@@ -1,6 +1,19 @@
 const Employe = require('../models/employe');
 const Projet = require('../models/projet');
 
+module.exports.verifySimilarProject = (prjp , arrayOfEmployees)=>{
+   let cpt = 0;
+   arrayOfEmployees.forEach(element=>{
+      if(element.projet === prjp){
+         cpt++;
+      }
+   })
+   if(cpt==0){
+      return false;
+   }
+   return true;
+}
+
 module.exports.addNewEmployee = async(req,res)=>{
     const {
         nom , 
@@ -13,7 +26,15 @@ module.exports.addNewEmployee = async(req,res)=>{
          } = req.body;
          try{
             const project = await Projet.findById(projetId).orFail();
+            const employe_meme_matricule = await Employe.find({matricule : matricule , projet : project});
+            console.log(employe_meme_matricule);
+            if(employe_meme_matricule.length !==0  )
+            {
+               return res.json({message : 'Matricule dupliqué'});
+            }
+            console.log(matricule)
            const emp = await Employe.create({nom , matricule , lieu_naissance,date_naissance , adresse , projet : project.id  , contrat})
+          // console.log(emp)
            return res.json(emp); 
         }
          catch(err){
