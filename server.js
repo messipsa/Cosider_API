@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const projetRoute = require('./routes/projet.routes');
 const employeRoute = require('./routes/employe.routes');
+const contratRoute = require('./routes/contrat.routes');
 
 require('dotenv').config();
 
@@ -17,6 +18,8 @@ const port = process.env.PORT;
 app.use('/api/projets' , projetRoute );
 
 app.use('/api/employes' , employeRoute);
+
+app.use('/api/contrats' , contratRoute);
 
 app.all('*', function(req, res) {
     throw new Error("Bad request");
