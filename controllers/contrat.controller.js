@@ -1,5 +1,9 @@
 const Employe = require('../models/employe');
 const Projet = require('../models/projet');
+const Excel = require('exceljs');
+const xlsx = require('xlsx');
+let workbook = new Excel.Workbook();
+let worksheet = workbook.addWorksheet('Cosider');
 
 
 module.exports.renouvelerContrat = async(req,res)=>{
@@ -20,6 +24,29 @@ module.exports.renouvelerContrat = async(req,res)=>{
         periode_essai
     } = req.body;
     try{
+        worksheet.columns = [
+            {header: 'Matricule', key: 'matricule' , width: 15},
+            {header: 'Nom', key: 'nom' , width: 15},
+            {header: 'Date Naissance', key: 'dnaissance' , width: 15},
+            {header: 'Lieu Naissance', key: 'lnaissance' , width: 15},
+            {header: 'Adresse', key: 'adr' , width: 15},
+            {header: 'Numero Contrat', key: 'num' , width: 15},
+            {header: 'Date Debut', key: 'ddebut' , width: 15},
+            {header: 'Date Fin', key: 'dfin' , width: 15},
+            {header: 'Entite', key: 'structure' , width: 15},
+            {header: 'Lieu', key: 'lieu' , width: 15},
+            {header: 'Directeur', key: 'directeur' , width: 15},
+            {header : 'Salaire' , width : 15},
+            {header : 'Salaire Lettres' , width : 15},
+            {header : 'Statut' , width : 15},
+            {header : 'Poste Travail' , width : 15},
+            {header : 'Groupe' , width : 15},
+            {header : 'Section' , width : 15},
+            {header : 'Affectation' , width : 15},
+            {header : 'Categorie' , width : 15},
+            {header : 'Duree Essais' , width : 15}
+        ]
+
         const employe = await Employe.findById(id).orFail();
 
         employe.contrat.numero = numero || employe.contrat.numero;
@@ -36,6 +63,36 @@ module.exports.renouvelerContrat = async(req,res)=>{
         employe.contrat.periode_essai = periode_essai || employe.contrat.periode_essai ;
 
         await employe.save();
+
+     const employ = await Employe.findById(id).orFail();
+
+     const prjp = await Projet.findById(employ.projet).orFail();
+      
+     console.log(employ.contrat.date_debut)
+        worksheet.addRow([
+            employ.matricule ,
+             employ.nom,
+             employ.date_naissance,
+             employ.lieu_naissance,
+             employ.adresse,
+             employ.contrat.numero,
+             employ.contrat.date_debut,
+             employ.contrat.date_fin,
+             prjp.entite,
+             prjp.lieu,
+             prjp.directeur,
+             employ.contrat.salaire,
+             employ.contrat.salaire_lettres,
+             employ.contrat.statut,
+             employ.contrat.poste_travail,
+             employ.contrat.groupe,
+             employ.contrat.section,
+             employ.contrat.affectation ,
+             employ.contrat.categorie,
+             employ.contrat.periode_essai
+        ] );
+
+        workbook.xlsx.writeFile('./Cosider.xlsx');
 
         return res.json(employe);
     }
