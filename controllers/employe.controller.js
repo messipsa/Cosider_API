@@ -69,18 +69,18 @@ module.exports.getEmployeeById = async(req,res)=>{
 
 module.exports.updateEmployee = async(req,res)=>{
    const id= req.params.id;
-   const{nom , matricule , date_naissance , lieu_naissance , adresse , projet} = req.body;
+   const{nom , matricule , date_naissance , lieu_naissance , adresse } = req.body;
    try{
       const employe = await Employe.findById(id).orFail();
       
-      const project = await Projet.findById(projet).orFail();
+      //const project = await Projet.findById(projet).orFail();
       
       employe.nom = nom || employe.nom;
       employe.adresse = adresse ||employe.adresse;
       employe.matricule = matricule || employe.matricule;
       employe.date_naissance = date_naissance || employe.date_naissance;
       employe.lieu_naissance = lieu_naissance || employe.lieu_naissance;
-      employe.projet = project.id || employe.projet;
+      //employe.projet = project.id || employe.projet;
 
       await employe.save();
 
@@ -88,7 +88,9 @@ module.exports.updateEmployee = async(req,res)=>{
    }
    catch(err)
    {
-      return res.status(500).json({message : 'Something went wrong',error : err});
+      return res.status(500).json({message : 'Something went wrong',
+      idemp : id,
+      error : err});
    }
 }
 

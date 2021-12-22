@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const cors = require("cors");
+const bodyParser = require("body-parser");
 const projetRoute = require('./routes/projet.routes');
 const employeRoute = require('./routes/employe.routes');
 const contratRoute = require('./routes/contrat.routes');
@@ -8,7 +10,8 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(express.json());
+app.use(cors())
+app.use(bodyParser.json())
 
 const url = process.env.URI;
 const port = process.env.PORT;

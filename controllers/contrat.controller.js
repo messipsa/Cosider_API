@@ -7,7 +7,7 @@ let worksheet = workbook.addWorksheet('Cosider');
 
 
 module.exports.renouvelerContrat = async(req,res)=>{
-    console.log(req.body);
+    //console.log(req.body);
     const id = req.params.id;
     const {
         numero,
@@ -21,7 +21,8 @@ module.exports.renouvelerContrat = async(req,res)=>{
         statut ,
         salaire_lettres, 
         categorie, 
-        periode_essai
+        periode_essai,
+        entite
     } = req.body;
     try{
         worksheet.columns = [
@@ -47,7 +48,15 @@ module.exports.renouvelerContrat = async(req,res)=>{
             {header : 'Duree Essais' , width : 15}
         ]
 
+        const project = await Projet.findOne({entite : entite}).orFail();
         const employe = await Employe.findById(id).orFail();
+
+        const employe_meme_matricule = await Employe.find({matricule : employe.matricule , projet : project});
+            if(employe_meme_matricule.length !==0  )
+            {
+               return res.status(500).json({message : 'Matricule dupliqué'});
+            }
+
 
         employe.contrat.numero = numero || employe.contrat.numero;
         employe.contrat.salaire = salaire || employe.contrat.salaire;
@@ -61,6 +70,9 @@ module.exports.renouvelerContrat = async(req,res)=>{
         employe.contrat.statut = statut || employe.contrat.statut;
         employe.contrat.categorie = categorie || employe.contrat.categorie;
         employe.contrat.periode_essai = periode_essai || employe.contrat.periode_essai ;
+        employe.projet= project._id || employe.projet;
+
+       
 
         await employe.save();
 
@@ -68,7 +80,7 @@ module.exports.renouvelerContrat = async(req,res)=>{
 
      const prjp = await Projet.findById(employ.projet).orFail();
       
-     console.log(employ.contrat.date_debut)
+     
         worksheet.addRow([
             employ.matricule ,
              employ.nom,
