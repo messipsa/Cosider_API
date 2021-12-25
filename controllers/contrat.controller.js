@@ -7,7 +7,7 @@ let worksheet = workbook.addWorksheet('Cosider');
 
 
 module.exports.renouvelerContrat = async(req,res)=>{
-    //console.log(req.body);
+    
     const id = req.params.id;
     const {
         numero,
@@ -51,11 +51,16 @@ module.exports.renouvelerContrat = async(req,res)=>{
         const project = await Projet.findOne({entite : entite}).orFail();
         const employe = await Employe.findById(id).orFail();
 
+        
+
+        if(employe.projet._id.toString() !== project._id.toString()){
+          
         const employe_meme_matricule = await Employe.find({matricule : employe.matricule , projet : project});
             if(employe_meme_matricule.length !==0  )
             {
                return res.status(500).json({message : 'Matricule dupliqué'});
             }
+        }
 
 
         employe.contrat.numero = numero || employe.contrat.numero;

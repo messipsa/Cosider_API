@@ -1,18 +1,6 @@
 const Employe = require('../models/employe');
 const Projet = require('../models/projet');
 
-module.exports.verifySimilarProject = (prjp , arrayOfEmployees)=>{
-   let cpt = 0;
-   arrayOfEmployees.forEach(element=>{
-      if(element.projet === prjp){
-         cpt++;
-      }
-   })
-   if(cpt==0){
-      return false;
-   }
-   return true;
-}
 
 module.exports.addNewEmployee = async(req,res)=>{
     const {
@@ -34,7 +22,7 @@ module.exports.addNewEmployee = async(req,res)=>{
             }
             console.log(matricule)
            const emp = await Employe.create({nom , matricule , lieu_naissance,date_naissance , adresse , projet : project.id  , contrat})
-          // console.log(emp)
+          
            return res.json(emp); 
         }
          catch(err){
@@ -73,14 +61,14 @@ module.exports.updateEmployee = async(req,res)=>{
    try{
       const employe = await Employe.findById(id).orFail();
       
-      //const project = await Projet.findById(projet).orFail();
+      
       
       employe.nom = nom || employe.nom;
       employe.adresse = adresse ||employe.adresse;
       employe.matricule = matricule || employe.matricule;
       employe.date_naissance = date_naissance || employe.date_naissance;
       employe.lieu_naissance = lieu_naissance || employe.lieu_naissance;
-      //employe.projet = project.id || employe.projet;
+      
 
       await employe.save();
 
@@ -114,10 +102,7 @@ module.exports.getEmployeeByEntite = async(req,res)=>{
    try{
      const entity = await Projet.findOne({entite : entite}).orFail();
      const employes = await Employe.find({projet : entity.id});
-     /*if(employes.length === 0)
-     {
-        return res.json({message : "Aucun employe n'a été affecté au projet"});
-     }*/
+   
      return res.json(employes); 
    }
    catch(err)
