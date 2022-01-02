@@ -34,7 +34,7 @@ module.exports.addNewEmployee = async (req, res) => {
       contrat,
     });
 
-    return res.json(emp);
+    return res.status(200).json(emp);
   } catch (err) {
     return res
       .status(500)
@@ -48,7 +48,7 @@ module.exports.getEmployees = async (req, res) => {
       "projet",
       "-__v -createdAt -updatedAt -directeur -lieu"
     );
-    return res.json(employes);
+    return res.status(200).json(employes);
   } catch (err) {
     return res
       .status(500)
@@ -62,7 +62,7 @@ module.exports.getEmployeeById = async (req, res) => {
     const employee = await Employe.findById(id)
       .populate("projet", "-__v -createdAt -updatedAt -directeur -lieu")
       .orFail();
-    return res.json(employee);
+    return res.status(200).json(employee);
   } catch (err) {
     return res
       .status(500)
@@ -85,7 +85,7 @@ module.exports.updateEmployee = async (req, res) => {
 
     await employe.save();
 
-    return res.json(employe);
+    return res.status(200).json(employe);
   } catch (err) {
     return res
       .status(500)
@@ -98,7 +98,7 @@ module.exports.deleteEmployee = async (req, res) => {
   try {
     await Employe.findByIdAndDelete(id).orFail();
 
-    return res.json("Employe supprimé avec succes");
+    return res.status(200).json("Employe supprimé avec succes");
   } catch (err) {
     return res
       .status(500)
@@ -112,7 +112,7 @@ module.exports.getEmployeeByEntite = async (req, res) => {
     const entity = await Projet.findOne({ entite: entite }).orFail();
     const employes = await Employe.find({ projet: entity.id });
 
-    return res.json(employes);
+    return res.status(200).json(employes);
   } catch (err) {
     return res.status(500).json({ message: "Entite inexistante", error: err });
   }

@@ -109,7 +109,7 @@ module.exports.renouvelerContrat = async (req, res) => {
 
     workbook.xlsx.writeFile("./Cosider.xlsx");
 
-    return res.json(employ);
+    return res.status(200).json(employ);
   } catch (err) {
     return res
       .status(500)
