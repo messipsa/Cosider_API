@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const projetRoute = require("./routes/projet.routes");
 const employeRoute = require("./routes/employe.routes");
 const contratRoute = require("./routes/contrat.routes");
+const userRoute = require("./routes/user.routes");
 
 require("dotenv").config();
 
@@ -21,6 +22,8 @@ app.use("/api/projets", projetRoute);
 app.use("/api/employes", employeRoute);
 
 app.use("/api/contrats", contratRoute);
+
+app.use("/api/user", userRoute);
 
 app.all("*", function (req, res) {
   throw new Error("Bad request");
