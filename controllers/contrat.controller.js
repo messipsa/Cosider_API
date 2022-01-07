@@ -75,7 +75,7 @@ module.exports.downloadContrat = async (req, res) => {
     const employe = await Employe.findById(req.params.id)
       .populate("projet", "-__v -createdAt -updatedAt")
       .orFail();
-    console.log(`${process.cwd()}/Cos.docx`);
+
     const content = fs.readFileSync(`${process.cwd()}/Cos.docx`, "binary");
 
     const zip = new PizZip(content);
@@ -135,12 +135,12 @@ module.exports.downloadContrat = async (req, res) => {
 
     mail.sendMail(mailOptions, function (error, info) {
       if (error) {
-        console.log(error);
+        return res.status(500).json({ success: false, error: err.message });
       } else {
         console.log("Email sent: " + info.response);
         fs.unlink(`${process.cwd()}/${employe.matricule}.docx`, (err) => {
           if (err) {
-            console.log(err);
+            return res.status(500).json({ success: false, error: err.message });
           }
 
           console.log("File is deleted.");

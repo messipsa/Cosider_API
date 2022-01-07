@@ -13,17 +13,16 @@ module.exports.addNewEmployee = async (req, res) => {
   } = req.body;
   try {
     const project = await Projet.findOne({ entite: entite }).orFail();
-    console.log(project);
-    console.log(project._id);
+
     const employe_meme_matricule = await Employe.find({
       matricule: matricule,
       projet: project,
     });
-    console.log(employe_meme_matricule);
+
     if (employe_meme_matricule.length !== 0) {
       return res.status(400).json({ message: "Matricule dupliqué" });
     }
-    console.log(matricule);
+
     const emp = await Employe.create({
       nom,
       matricule,
@@ -73,10 +72,10 @@ module.exports.getEmployeeById = async (req, res) => {
 module.exports.updateEmployee = async (req, res) => {
   const id = req.params.id;
   const { nom, matricule, date_naissance, lieu_naissance, adresse } = req.body;
-  console.log(id);
+
   try {
     const employe = await Employe.findById(id).populate("projet").orFail();
-    console.log(employe);
+
     employe.nom = nom || employe.nom;
     employe.adresse = adresse || employe.adresse;
     employe.matricule = matricule || employe.matricule;
