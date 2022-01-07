@@ -21,6 +21,7 @@ module.exports.renouvelerContrat = async (req, res) => {
     salaire_lettres,
     categorie,
     periode_essai,
+    classification,
     entite,
   } = req.body;
   try {
@@ -52,6 +53,7 @@ module.exports.renouvelerContrat = async (req, res) => {
     employe.contrat.categorie = categorie || employe.contrat.categorie;
     employe.contrat.periode_essai =
       periode_essai || employe.contrat.periode_essai;
+    employe.contrat.classification = classification;
     employe.projet = project._id || employe.projet;
 
     await employe.save();
@@ -81,9 +83,27 @@ module.exports.downloadContrat = async (req, res) => {
     doc.loadZip(zip);
     //
     doc.setData({
-      matricule: employe.matricule,
-      numero: employe.contrat.numero,
       entite: employe.projet.entite,
+      directeur: employe.projet.directeur,
+      lieu: employe.projet.lieu,
+      matricule: employe.matricule,
+      nom: employe.nom,
+      date_naissance: JSON.stringify(employe.date_naissance).substring(1, 11),
+      lieu_naissance: employe.lieu_naissance,
+      adresse: employe.adresse,
+      numero: employe.contrat.numero,
+      categorie: employe.contrat.categorie,
+      section: employe.contrat.section,
+      affectation: employe.contrat.affectation,
+      groupe: employe.contrat.groupe,
+      date_fin: JSON.stringify(employe.contrat.date_fin).substring(1, 11),
+      date_debut: JSON.stringify(employe.contrat.date_debut).substring(1, 11),
+      poste: employe.contrat.poste_travail,
+      classification: employe.contrat.classification,
+      salaire: employe.contrat.salaire,
+      salaire_lettres: employe.contrat.salaire_lettres,
+      periode: employe.contrat.periode_essai,
+      statut: employe.contrat.statut,
     });
 
     doc.render();
@@ -102,12 +122,12 @@ module.exports.downloadContrat = async (req, res) => {
     const mailOptions = {
       from: process.env.user,
       to: process.env.user,
-      subject: "Mail via nodejs",
-      text: "Not important",
+      subject: `[Mail automatique] Renouvelement de contrat de ${employe.nom}`,
+      text: `Veuillez trouver ci-joint le contrat de l'employe ${employe.matricule} - ${employe.nom}`,
       attachments: [
         {
           // utf-8 string as an attachment
-          filename: `${employe.matricule}.docx`,
+          filename: `${employe.matricule} - ${employe.nom}.docx`,
           path: `${process.cwd()}/${employe.matricule}.docx`,
         },
       ],
