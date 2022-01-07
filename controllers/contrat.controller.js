@@ -1,12 +1,13 @@
 const Employe = require("../models/employe");
 const Projet = require("../models/projet");
-const Excel = require("exceljs");
-const xlsx = require("xlsx");
-let workbook = new Excel.Workbook();
-let worksheet = workbook.addWorksheet("Cosider");
+const fs = require("fs");
+const PizZip = require("pizzip");
+const docxtemplater = require("docxtemplater");
+const nodemailer = require("nodemailer");
 
 module.exports.renouvelerContrat = async (req, res) => {
   const id = req.params.id;
+
   const {
     numero,
     salaire,
@@ -23,29 +24,6 @@ module.exports.renouvelerContrat = async (req, res) => {
     entite,
   } = req.body;
   try {
-    worksheet.columns = [
-      { header: "Matricule", key: "matricule", width: 15 },
-      { header: "Nom", key: "nom", width: 15 },
-      { header: "Date Naissance", key: "dnaissance", width: 15 },
-      { header: "Lieu Naissance", key: "lnaissance", width: 15 },
-      { header: "Adresse", key: "adr", width: 15 },
-      { header: "Numero Contrat", key: "num", width: 15 },
-      { header: "Date Debut", key: "ddebut", width: 15 },
-      { header: "Date Fin", key: "dfin", width: 15 },
-      { header: "Entite", key: "structure", width: 15 },
-      { header: "Lieu", key: "lieu", width: 15 },
-      { header: "Directeur", key: "directeur", width: 15 },
-      { header: "Salaire", width: 15 },
-      { header: "Salaire Lettres", width: 15 },
-      { header: "Statut", width: 15 },
-      { header: "Poste Travail", width: 15 },
-      { header: "Groupe", width: 15 },
-      { header: "Section", width: 15 },
-      { header: "Affectation", width: 15 },
-      { header: "Categorie", width: 15 },
-      { header: "Duree Essais", width: 15 },
-    ];
-
     const project = await Projet.findOne({ entite: entite }).orFail();
     const employe = await Employe.findById(id).orFail();
 
@@ -82,37 +60,77 @@ module.exports.renouvelerContrat = async (req, res) => {
       .populate("projet", "-__v -createdAt -updatedAt -directeur -lieu")
       .orFail();
 
-    const prjp = await Projet.findById(employ.projet).orFail();
-
-    worksheet.addRow([
-      employ.matricule,
-      employ.nom,
-      employ.date_naissance,
-      employ.lieu_naissance,
-      employ.adresse,
-      employ.contrat.numero,
-      employ.contrat.date_debut,
-      employ.contrat.date_fin,
-      prjp.entite,
-      prjp.lieu,
-      prjp.directeur,
-      employ.contrat.salaire,
-      employ.contrat.salaire_lettres,
-      employ.contrat.statut,
-      employ.contrat.poste_travail,
-      employ.contrat.groupe,
-      employ.contrat.section,
-      employ.contrat.affectation,
-      employ.contrat.categorie,
-      employ.contrat.periode_essai,
-    ]);
-
-    workbook.xlsx.writeFile("./Cosider.xlsx");
-
     return res.status(200).json(employ);
   } catch (err) {
     return res
       .status(500)
       .json({ message: "Something went wrong", error: err });
+  }
+};
+
+module.exports.downloadContrat = async (req, res) => {
+  try {
+    const employe = await Employe.findById(req.params.id)
+      .populate("projet", "-__v -createdAt -updatedAt")
+      .orFail();
+    console.log(`${process.cwd()}/Cos.docx`);
+    const content = fs.readFileSync(`${process.cwd()}/Cos.docx`, "binary");
+
+    const zip = new PizZip(content);
+    const doc = new docxtemplater();
+    doc.loadZip(zip);
+    //
+    doc.setData({
+      matricule: employe.matricule,
+      numero: employe.contrat.numero,
+      entite: employe.projet.entite,
+    });
+
+    doc.render();
+    //
+    const buf = doc.getZip().generate({ type: "nodebuffer" });
+    fs.writeFileSync(`${employe.matricule}.docx`, buf);
+
+    const mail = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.user,
+        pass: process.env.pass,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.user,
+      to: process.env.user,
+      subject: "Mail via nodejs",
+      text: "Not important",
+      attachments: [
+        {
+          // utf-8 string as an attachment
+          filename: `${employe.matricule}.docx`,
+          path: `${process.cwd()}/${employe.matricule}.docx`,
+        },
+      ],
+    };
+
+    mail.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+        fs.unlink(`${process.cwd()}/${employe.matricule}.docx`, (err) => {
+          if (err) {
+            console.log(err);
+          }
+
+          console.log("File is deleted.");
+          return res.status(200).json({ message: "Success" });
+        });
+      }
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: err.message });
   }
 };

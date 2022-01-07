@@ -2,7 +2,7 @@ const router = require("express").Router();
 const projetController = require("../controllers/projet.controller");
 const auth = require("../middleware/auth");
 
-router.get("/", auth.auth, projetController.getAllProjects);
+router.get("/", projetController.getAllProjects);
 
 router.get("/:id", projetController.getProjectById);
 
@@ -13,3 +13,4 @@ router.put("/modifier/:id", projetController.Modify);
 router.delete("/supprimer/:id", projetController.deleteProject);
 
 module.exports = router;
+
