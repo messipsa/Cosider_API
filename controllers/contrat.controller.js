@@ -76,78 +76,105 @@ module.exports.downloadContrat = async (req, res) => {
       .populate("projet", "-__v -createdAt -updatedAt")
       .orFail();
 
-    const content = fs.readFileSync(`${process.cwd()}/Cos.docx`, "binary");
-
-    const zip = new PizZip(content);
     const doc = new docxtemplater();
-    doc.loadZip(zip);
-    //
-    doc.setData({
-      entite: employe.projet.entite,
-      directeur: employe.projet.directeur,
-      lieu: employe.projet.lieu,
-      matricule: employe.matricule,
-      nom: employe.nom,
-      date_naissance: JSON.stringify(employe.date_naissance).substring(1, 11),
-      lieu_naissance: employe.lieu_naissance,
-      adresse: employe.adresse,
-      numero: employe.contrat.numero,
-      categorie: employe.contrat.categorie,
-      section: employe.contrat.section,
-      affectation: employe.contrat.affectation,
-      groupe: employe.contrat.groupe,
-      date_fin: JSON.stringify(employe.contrat.date_fin).substring(1, 11),
-      date_debut: JSON.stringify(employe.contrat.date_debut).substring(1, 11),
-      poste: employe.contrat.poste_travail,
-      classification: employe.contrat.classification,
-      salaire: employe.contrat.salaire,
-      salaire_lettres: employe.contrat.salaire_lettres,
-      periode: employe.contrat.periode_essai,
-      statut: employe.contrat.statut,
-    });
-
-    doc.render();
-    //
-    const buf = doc.getZip().generate({ type: "nodebuffer" });
-    fs.writeFileSync(`${employe.matricule}.docx`, buf);
 
     const mail = nodemailer.createTransport({
       service: "gmail",
+      host: "smtp.mailtrap.io",
       auth: {
         user: process.env.user,
         pass: process.env.pass,
       },
     });
 
-    const mailOptions = {
-      from: process.env.user,
-      to: process.env.user,
-      subject: `[Mail automatique] Renouvelement de contrat de ${employe.nom}`,
-      text: `Veuillez trouver ci-joint le contrat de l'employe ${employe.matricule} - ${employe.nom}`,
-      attachments: [
-        {
-          // utf-8 string as an attachment
-          filename: `${employe.matricule} - ${employe.nom}.docx`,
-          path: `${process.cwd()}/${employe.matricule}.docx`,
-        },
-      ],
-    };
+    const content = fs.readFile(
+      `${process.cwd()}/Cos.docx`,
+      "binary",
+      (err, data) => {
+        if (err) {
+          res.status(500).json({ success: false, error: err.message });
+        }
+        const zip = new PizZip(data);
+        doc.loadZip(zip);
 
-    mail.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        return res.status(500).json({ success: false, error: err.message });
-      } else {
-        console.log("Email sent: " + info.response);
-        fs.unlink(`${process.cwd()}/${employe.matricule}.docx`, (err) => {
+        doc.setData({
+          entite: employe.projet.entite,
+          directeur: employe.projet.directeur,
+          lieu: employe.projet.lieu,
+          matricule: employe.matricule,
+          nom: employe.nom,
+          date_naissance: JSON.stringify(employe.date_naissance).substring(
+            1,
+            11
+          ),
+          lieu_naissance: employe.lieu_naissance,
+          adresse: employe.adresse,
+          numero: employe.contrat.numero,
+          categorie: employe.contrat.categorie,
+          section: employe.contrat.section,
+          affectation: employe.contrat.affectation,
+          groupe: employe.contrat.groupe,
+          date_fin: JSON.stringify(employe.contrat.date_fin).substring(1, 11),
+          date_debut: JSON.stringify(employe.contrat.date_debut).substring(
+            1,
+            11
+          ),
+          poste: employe.contrat.poste_travail,
+          classification: employe.contrat.classification,
+          salaire: employe.contrat.salaire,
+          salaire_lettres: employe.contrat.salaire_lettres,
+          periode: employe.contrat.periode_essai,
+          statut: employe.contrat.statut,
+        });
+
+        doc.render();
+        //
+        const buf = doc.getZip().generate({ type: "nodebuffer" });
+        fs.writeFile(`${employe.matricule}.docx`, buf, (err, data) => {
           if (err) {
             return res.status(500).json({ success: false, error: err.message });
           }
 
-          console.log("File is deleted.");
-          return res.status(200).json({ message: "Success" });
+          const randoom = Math.round(Math.random() * 100);
+
+          const mailOptions = {
+            from: process.env.user,
+            to: process.env.reciever,
+            subject: `[Mail automatique ${randoom}] Renouvelement de contrat de ${employe.nom}`,
+            text: `Veuillez trouver ci-joint le contrat de l'employe ${employe.matricule} - ${employe.nom}  `,
+            attachments: [
+              {
+                // utf-8 string as an attachment
+                filename: `${employe.matricule} - ${employe.nom} Version ${randoom}.docx`,
+                path: `${process.cwd()}/${employe.matricule}.docx`,
+              },
+            ],
+          };
+
+          mail.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              return res
+                .status(500)
+                .json({ success: false, error: err.message });
+            } else {
+              console.log("Email sent: " + info.response);
+              fs.unlink(`${process.cwd()}/${employe.matricule}.docx`, (err) => {
+                if (err) {
+                  return res
+                    .status(500)
+                    .json({ success: false, error: err.message });
+                }
+
+                console.log("File is deleted.");
+                return res.status(200).json({ message: "Success" });
+              });
+            }
+          });
         });
       }
-    });
+    );
+
+    //
   } catch (err) {
     return res
       .status(500)
