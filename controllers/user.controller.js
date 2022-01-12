@@ -80,6 +80,7 @@ module.exports.login = async (req, res) => {
         .cookie("token", token, options)
         .json({
           token,
+          options,
           user: lodash.omit(user, ["_id", "password"]),
         });
     }

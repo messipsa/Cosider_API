@@ -79,8 +79,10 @@ module.exports.downloadContrat = async (req, res) => {
     const doc = new docxtemplater();
 
     const mail = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.mailtrap.io",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: {
         user: process.env.user,
         pass: process.env.pass,
@@ -135,17 +137,15 @@ module.exports.downloadContrat = async (req, res) => {
             return res.status(500).json({ success: false, error: err.message });
           }
 
-          const randoom = Math.round(Math.random() * 100);
-
           const mailOptions = {
             from: process.env.user,
             to: process.env.reciever,
-            subject: `[Mail automatique ${randoom}] Renouvelement de contrat de ${employe.nom}`,
+            subject: `[Mail automatique ] Renouvelement de contrat de ${employe.nom}`,
             text: `Veuillez trouver ci-joint le contrat de l'employe ${employe.matricule} - ${employe.nom}  `,
             attachments: [
               {
                 // utf-8 string as an attachment
-                filename: `${employe.matricule} - ${employe.nom} Version ${randoom}.docx`,
+                filename: `${employe.matricule} - ${employe.nom}.docx`,
                 path: `${process.cwd()}/${employe.matricule}.docx`,
               },
             ],

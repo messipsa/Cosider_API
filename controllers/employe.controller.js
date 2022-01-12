@@ -13,10 +13,11 @@ module.exports.addNewEmployee = async (req, res) => {
   } = req.body;
   try {
     const project = await Projet.findOne({ entite: entite }).orFail();
-
+    console.log(project);
+    console.log(matricule);
     const employe_meme_matricule = await Employe.find({
       matricule: matricule,
-      projet: project,
+      projet: project._id,
     });
 
     if (employe_meme_matricule.length !== 0) {

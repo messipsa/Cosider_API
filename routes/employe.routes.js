@@ -1,16 +1,17 @@
-const router = require('express').Router();
-const employeeController = require('../controllers/employe.controller');
+const router = require("express").Router();
+const employeeController = require("../controllers/employe.controller");
+const auth = require("../middleware/auth");
 
-router.post('/ajouter' , employeeController.addNewEmployee);
+router.post("/ajouter", auth.auth, employeeController.addNewEmployee);
 
-router.get('/' , employeeController.getEmployees);
+router.get("/", auth.auth, employeeController.getEmployees);
 
-router.get('/:id' , employeeController.getEmployeeById);
+router.get("/:id", employeeController.getEmployeeById);
 
-router.get('/entite/:entite' , employeeController.getEmployeeByEntite);
+router.get("/entite/:entite", employeeController.getEmployeeByEntite);
 
-router.put('/modifier/:id' , employeeController.updateEmployee);
+router.put("/modifier/:id", auth.auth, employeeController.updateEmployee);
 
-router.delete('/supprimer/:id' , employeeController.deleteEmployee);
+router.delete("/supprimer/:id", auth.auth, employeeController.deleteEmployee);
 
 module.exports = router;
