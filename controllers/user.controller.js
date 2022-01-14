@@ -90,12 +90,16 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.logout = async (req, res) => {
-  res.cookie("token", "none ", {
+  const options = {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-  });
+  };
+  res.cookie("token", "none", options);
 
-  return res
-    .status(200)
-    .json({ succes: true, message: "Utilisateur déconnecté" });
+  return res.status(200).json({
+    succes: true,
+    message: "Utilisateur déconnecté",
+    options: options,
+    token: "none",
+  });
 };

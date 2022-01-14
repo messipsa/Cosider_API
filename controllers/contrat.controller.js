@@ -105,10 +105,7 @@ module.exports.downloadContrat = async (req, res) => {
           lieu: employe.projet.lieu,
           matricule: employe.matricule,
           nom: employe.nom,
-          date_naissance: JSON.stringify(employe.date_naissance).substring(
-            1,
-            11
-          ),
+          date_naissance: modifyDate(employe.date_naissance),
           lieu_naissance: employe.lieu_naissance,
           adresse: employe.adresse,
           numero: employe.contrat.numero,
@@ -116,11 +113,8 @@ module.exports.downloadContrat = async (req, res) => {
           section: employe.contrat.section,
           affectation: employe.contrat.affectation,
           groupe: employe.contrat.groupe,
-          date_fin: JSON.stringify(employe.contrat.date_fin).substring(1, 11),
-          date_debut: JSON.stringify(employe.contrat.date_debut).substring(
-            1,
-            11
-          ),
+          date_fin: modifyDate(employe.contrat.date_fin),
+          date_debut: modifyDate(employe.contrat.date_debut),
           poste: employe.contrat.poste_travail,
           classification: employe.contrat.classification,
           salaire: employe.contrat.salaire,
@@ -180,4 +174,12 @@ module.exports.downloadContrat = async (req, res) => {
       .status(500)
       .json({ message: "Something went wrong", error: err.message });
   }
+};
+
+const modifyDate = (mongooseDate) => {
+  let date = JSON.stringify(mongooseDate).substring(1, 11);
+  let day = date.substring(8, 10);
+  let month = date.substring(5, 7);
+  let year = date.substring(0, 4);
+  return day + "/" + month + "/" + year;
 };
